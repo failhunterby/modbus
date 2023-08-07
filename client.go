@@ -951,7 +951,7 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	}
 	req.functionCode = 14
 	startingRecord := recNumber
-	var registersCount uint16
+	var registersCount uint8
 	registersCount = 0
 	var queryString []byte
 	log.Printf("startingRecord: %v", uint16ToBytes(BIG_ENDIAN, startingRecord))
@@ -963,8 +963,8 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 		startingRecord--
 		registersCount = registersCount + 7
 	}
-	log.Printf("registers count: %v", uint16ToBytes(BIG_ENDIAN, registersCount))
-	req.payload = uint16ToBytes(BIG_ENDIAN, registersCount)
+	log.Printf("registers count: %s", uint8ToBytes(registersCount))
+	req.payload = uint8ToBytes(registersCount)
 	log.Printf("qeryString: %v", queryString)
 	req.payload = append(req.payload, queryString...)
 	log.Printf("Request: %v", req)
