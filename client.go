@@ -949,7 +949,7 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	req = &pdu{
 		unitId: mc.unitId,
 	}
-	req.functionCode = 14
+	req.functionCode = 20
 	startingRecord := recNumber
 	var registersCount uint8
 	registersCount = 0
