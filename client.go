@@ -967,8 +967,8 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 		startingRecord--
 		registersCount = registersCount + 7
 	}
-	// res.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, registersCount)...)
-	res.payload = append(res.payload, queryString...)
+	req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, registersCount)...)
+	req.payload = append(res.payload, queryString...)
 	res, err = mc.executeRequest(req)
 	if err != nil {
 		return
