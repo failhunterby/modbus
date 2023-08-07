@@ -977,6 +977,7 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	if err != nil {
 		return
 	}
+	log.Printf("res: %s", res)
 	return
 }
 
