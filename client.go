@@ -958,19 +958,18 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	var registersCount uint16
 	registersCount = 0
 	var queryString []byte
-
+	log.Printf("startingRecord: %v", startingRecord)
 	for i := 1; i <= int(quantity); i++ {
 		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, 6)...)
 		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, 1)...)
 		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, startingRecord)...)
 		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, RequestPayloadlength)...)
 		startingRecord--
-		log.Printf("registers count: %s", registersCount)
 		registersCount = registersCount + 7
 	}
 	log.Printf("registers count: %s", registersCount)
 	req.payload = uint16ToBytes(BIG_ENDIAN, registersCount)
-	log.Printf("qeryString: %s", queryString)
+	log.Printf("qeryString: %v", len(queryString))
 	log.Printf("Payload: %s", req.payload)
 	req.payload = append(req.payload, queryString...)
 	res, err = mc.executeRequest(req)
