@@ -924,6 +924,10 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	const RequestPayloadlength uint16 = 7
 	var req *pdu
 	var res *pdu
+
+	log.Printf("recNumber %s", recNumber)
+	log.Printf("quantity %s", quantity)
+
 	mc.lock.Lock()
 	defer mc.lock.Unlock()
 	if (recNumber - quantity) < 1 {
@@ -949,7 +953,7 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	// start address
 	// req.payload	= uint16ToBytes(BIG_ENDIAN, addr)
 	// quantity
-	req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, quantity*RequestPayloadlength)...)
+	// req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, quantity*RequestPayloadlength)...)
 	startingRecord := recNumber
 	var registersCount uint16
 	registersCount = 0
