@@ -921,7 +921,7 @@ func (mc *ModbusClient) writeBytes(addr uint16, values []byte, observeEndianness
 
 func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values []uint16, err error) {
 
-	const RequestPayloadlength uint16 = 7
+	const RequestPayloadlength uint16 = 16
 	var req *pdu
 	var res *pdu
 
