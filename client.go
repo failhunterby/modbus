@@ -918,6 +918,60 @@ func (mc *ModbusClient) writeBytes(addr uint16, values []byte, observeEndianness
 	return
 }
 
+
+func (mc *ModbusClient) readFileLines(addr uint16, recNumber uint16, quantity uint16)(values []uint16, err error) {
+	
+	const RequestPayloadlength uint16 = 7
+	var req		*pdu
+	var res		*pdu
+	mc.lock.Lock()
+	defer mc.lock.Unlock()
+	if (recNumber - quantity) < 1 {
+		err	= ErrUnexpectedParameters
+		mc.logger.Error("quantity more then records")
+		return
+	}
+	if quantity == 0 {
+		err	= ErrUnexpectedParameters
+		mc.logger.Error("quantity of file records to read inputs is 0")
+		return
+	}
+	if quantity > 4 {
+		err	= ErrUnexpectedParameters
+		mc.logger.Error("quantity of coils/discrete inputs exceeds 4")
+		return
+	}
+
+	req	= &pdu{
+		unitId:	mc.unitId,
+	}
+	req.functionCode = fcReadFileRecord
+	// start address
+	req.payload	= uint16ToBytes(BIG_ENDIAN, addr)
+	// quantity
+	req.payload	= append(req.payload, uint16ToBytes(BIG_ENDIAN, quantity * RequestPayloadlength)...)
+	startingRecord := recNumber
+	var registersCount uint16
+	registersCount = 0;
+	var queryString []byte
+
+	for i:=1; i<= int(quantity); i++ {
+		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, 6)...)
+		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, 1)...)
+		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, startingRecord)...)
+		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, RequestPayloadlength)...)
+		startingRecord--
+		registersCount += 7
+	}
+	res.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, registersCount)...)
+	res.payload = append(res.payload, queryString...)
+	res, err	= mc.executeRequest(req)
+	if err != nil {
+		return
+	}
+	return
+}
+
 // Reads and returns quantity booleans.
 // Digital inputs are read if di is true, otherwise coils are read.
 func (mc *ModbusClient) readBools(addr uint16, quantity uint16, di bool) (values []bool, err error) {
