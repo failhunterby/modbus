@@ -949,11 +949,7 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	req = &pdu{
 		unitId: mc.unitId,
 	}
-	req.functionCode = fcReadFileRecord
-	// start address
-	// req.payload	= uint16ToBytes(BIG_ENDIAN, addr)
-	// quantity
-	// req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, quantity*RequestPayloadlength)...)
+	req.functionCode = 0x14
 	startingRecord := recNumber
 	var registersCount uint16
 	registersCount = 0
