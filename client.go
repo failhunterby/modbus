@@ -965,6 +965,7 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	}
 	log.Printf("registers count: %s", uint8ToBytes(registersCount))
 	req.payload = uint8ToBytes(registersCount)
+	log.Printf("payload: %v", req.payload)
 	log.Printf("qeryString: %v", queryString)
 	req.payload = append(req.payload, queryString...)
 	log.Printf("Request: %v", req)
