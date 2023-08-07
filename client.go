@@ -970,8 +970,9 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	log.Printf("registers count: %s", registersCount)
 	req.payload = uint16ToBytes(BIG_ENDIAN, registersCount)
 	log.Printf("qeryString: %v", queryString)
-	log.Printf("Payload: %s", req.payload)
 	req.payload = append(req.payload, queryString...)
+	log.Printf("Request: %v", req)
+
 	res, err = mc.executeRequest(req)
 	if err != nil {
 		return
