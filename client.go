@@ -919,7 +919,7 @@ func (mc *ModbusClient) writeBytes(addr uint16, values []byte, observeEndianness
 }
 
 
-func (mc *ModbusClient) readFileLines(addr uint16, recNumber uint16, quantity uint16)(values []uint16, err error) {
+func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16)(values []uint16, err error) {
 	
 	const RequestPayloadlength uint16 = 7
 	var req		*pdu
@@ -947,7 +947,7 @@ func (mc *ModbusClient) readFileLines(addr uint16, recNumber uint16, quantity ui
 	}
 	req.functionCode = fcReadFileRecord
 	// start address
-	req.payload	= uint16ToBytes(BIG_ENDIAN, addr)
+	// req.payload	= uint16ToBytes(BIG_ENDIAN, addr)
 	// quantity
 	req.payload	= append(req.payload, uint16ToBytes(BIG_ENDIAN, quantity * RequestPayloadlength)...)
 	startingRecord := recNumber

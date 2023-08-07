@@ -4,11 +4,11 @@ import (
 	"crypto/tls"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"flag"
+	"fmt"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/simonvetter/modbus"
@@ -753,6 +753,7 @@ const (
 	writeUint64
 	writeFloat64
 	writeBytes
+	readFileLines
 	setUnitId
 	sleep
 	repeat
@@ -760,6 +761,7 @@ const (
 	scanBools
 	scanRegisters
 	ping
+
 )
 
 type operation struct {
