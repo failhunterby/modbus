@@ -1,8 +1,3 @@
-module github.com/failhunterby/modbus
+module modbus-clinet
 
-go 1.16
-
-require (
-	github.com/goburrow/serial v0.1.0
-	github.com/simonvetter/modbus v1.6.0
-)
+go 1.20
