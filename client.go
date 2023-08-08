@@ -956,6 +956,7 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	var queryString []byte
 	log.Printf("startingRecord: %v", startingRecord)
 	log.Printf("startingRecord: %v", uint16ToBytes(BIG_ENDIAN, startingRecord))
+	log.Printf("startingRecordLittleEndian: %v", uint16ToBytes(LITTLE_ENDIAN, startingRecord))
 	for i := 1; i <= int(quantity); i++ {
 		queryString = append(queryString, uint8(6))
 		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, 1)...)
