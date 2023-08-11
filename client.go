@@ -1012,7 +1012,7 @@ func (mc *ModbusClient) readFileLines(recNumber uint16, quantity uint16) (bytes 
 
 		// remove the byte count field from the returned slice
 		bytes = res.payload[1:]
-		for i := 0; i < len(bytes); i += 34 {
+		for i := 0; i < len(bytes); i += 33 {
 			bytes = append(bytes[:i], bytes[i+1:]...)
 		}
 		fmt.Printf("response: %v", bytes)
