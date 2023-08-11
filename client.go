@@ -997,7 +997,7 @@ func (mc *ModbusClient) readFileLines(recNumber uint16, quantity uint16) (bytes 
 		// make sure the payload length is what we expect
 		// (1 byte of length + 2 bytes per register)
 		if len(res.payload) != 1+33*int(quantity) {
-			fmt.Printf("firstCheck")
+			fmt.Printf("firstCheck: %v", len(res.payload))
 			err = ErrProtocolError
 			return
 		}
