@@ -920,6 +920,21 @@ func (mc *ModbusClient) writeBytes(addr uint16, values []byte, observeEndianness
 }
 
 func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values []uint16, err error) {
+	var mbPayload []byte
+
+	// read quantity uint16 registers, as bytes
+	mbPayload, err = mc.readFileLines(recNumber, quantity)
+	if err != nil {
+		return
+	}
+
+	// decode payload bytes as uint16s
+	values = bytesToUint16s(mc.endianness, mbPayload)
+
+	return
+}
+
+func (mc *ModbusClient) readFileLines(recNumber uint16, quantity uint16) (bytes []byte, err error) {
 
 	const RequestPayloadlength uint16 = 16
 	var req *pdu
@@ -977,6 +992,38 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 		return
 	}
 	log.Printf("res: %v", res)
+	switch {
+	case res.functionCode == req.functionCode:
+		// make sure the payload length is what we expect
+		// (1 byte of length + 2 bytes per register)
+		if len(res.payload) != 1+2*int(quantity) {
+			err = ErrProtocolError
+			return
+		}
+
+		// validate the byte count field
+		// (2 bytes per register * number of registers)
+		if uint(res.payload[0]) != 2*uint(quantity) {
+			err = ErrProtocolError
+			return
+		}
+
+		// remove the byte count field from the returned slice
+		bytes = res.payload[1:]
+
+	case res.functionCode == (req.functionCode | 0x80):
+		if len(res.payload) != 1 {
+			err = ErrProtocolError
+			return
+		}
+
+		err = mapExceptionCodeToError(res.payload[0])
+
+	default:
+		err = ErrProtocolError
+		mc.logger.Warningf("unexpected response code (%v)", res.functionCode)
+	}
+
 	return
 }
 
