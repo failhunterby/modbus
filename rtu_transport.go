@@ -164,6 +164,7 @@ func (rt *rtuTransport) readRTUFrame() (res *pdu, err error) {
 	// we need to read 2 additional bytes of CRC after the payload
 	bytesNeeded += 2
 
+	fmt.Printf("bytesTotal: %v", byteCount+bytesNeeded)
 	// never read more than the max allowed frame length
 	if byteCount+bytesNeeded > maxRTUFrameLength {
 		err = ErrProtocolError
