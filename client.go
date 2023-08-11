@@ -996,14 +996,16 @@ func (mc *ModbusClient) readFileLines(recNumber uint16, quantity uint16) (bytes 
 	case res.functionCode == req.functionCode:
 		// make sure the payload length is what we expect
 		// (1 byte of length + 2 bytes per register)
-		if len(res.payload) != 1+2*int(quantity) {
+		if len(res.payload) != 1+33*int(quantity) {
+			fmt.Printf("firstCheck")
 			err = ErrProtocolError
 			return
 		}
 
 		// validate the byte count field
 		// (2 bytes per register * number of registers)
-		if uint(res.payload[0]) != 2*uint(quantity) {
+		if uint(res.payload[0]) != 2+33*uint(quantity) {
+			fmt.Printf("secondCheck")
 			err = ErrProtocolError
 			return
 		}
