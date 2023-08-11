@@ -245,7 +245,7 @@ func expectedResponseLenth(responseCode uint8, responseLength uint8) (byteCount 
 		fcMaskWriteRegister | 0x80:
 		byteCount = 0
 	case fcReadFileRecord:
-		byteCount = 0
+		byteCount = int(responseLength)
 
 	default:
 		err = ErrProtocolError
