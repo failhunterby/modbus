@@ -1015,6 +1015,7 @@ func (mc *ModbusClient) readFileLines(recNumber uint16, quantity uint16) (bytes 
 		for i := 0; i < len(bytes); i += 34 {
 			bytes = append(bytes[:i], bytes[i+1:]...)
 		}
+		fmt.Printf("response: %v", bytes)
 	case res.functionCode == (req.functionCode | 0x80):
 		if len(res.payload) != 1 {
 			err = ErrProtocolError
