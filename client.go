@@ -965,7 +965,7 @@ func (mc *ModbusClient) readFileLines(recNumber uint16, quantity uint16) (bytes 
 		unitId: mc.unitId,
 	}
 	req.functionCode = 20
-	startingRecord := uint16(500)
+	startingRecord := uint16(5)
 	var registersCount uint8
 	registersCount = 0
 	log.Printf("startingRecord: %v", startingRecord)
