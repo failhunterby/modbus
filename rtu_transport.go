@@ -154,7 +154,7 @@ func (rt *rtuTransport) readRTUFrame() (res *pdu, err error) {
 	if err != nil && err != io.ErrUnexpectedEOF {
 		return
 	}
-
+	fmt.Printf("beforeBytesNeeded")
 	// figure out how many further bytes to read
 	bytesNeeded, err = expectedResponseLenth(uint8(rxbuf[1]), uint8(rxbuf[2]))
 	if err != nil {
