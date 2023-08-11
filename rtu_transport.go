@@ -78,11 +78,12 @@ func (rt *rtuTransport) ExecuteRequest(req *pdu) (res *pdu, err error) {
 
 	// build an RTU ADU out of the request object and
 	// send the final ADU+CRC on the wire
+
 	n, err = rt.link.Write(rt.assembleRTUFrame(req))
 	if err != nil {
 		return
 	}
-
+	fmt.Printf("assembledRTUFrame: %v", n)
 	// estimate how long the serial line was busy for.
 	// note that on most platforms, Write() will be buffered and return
 	// immediately rather than block until the buffer is drained
