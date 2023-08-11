@@ -94,7 +94,7 @@ func (rt *rtuTransport) ExecuteRequest(req *pdu) (res *pdu, err error) {
 
 	// read the response back from the wire
 	res, err = rt.readRTUFrame()
-
+	fmt.Printf("executeRequestError: %v", err)
 	if err == ErrBadCRC || err == ErrProtocolError || err == ErrShortFrame {
 		// wait for and flush any data coming off the link to allow
 		// devices to re-sync
