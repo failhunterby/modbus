@@ -958,18 +958,18 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	log.Printf("startingRecord: %v", uint16ToBytes(BIG_ENDIAN, startingRecord))
 	log.Printf("startingRecordLittleEndian: %v", uint16ToBytes(LITTLE_ENDIAN, startingRecord))
 	for i := 1; i <= int(quantity); i++ {
-		queryString = append(queryString, uint8(6))
-		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, 1)...)
-		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, startingRecord)...)
-		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, RequestPayloadlength)...)
-		startingRecord--
 		registersCount = registersCount + 7
 	}
-	log.Printf("registers count: %v", registersCount)
 	req.payload = make([]byte, 0)
 	req.payload = append(req.payload, registersCount)
-	log.Printf("qeryString: %v", queryString)
-	req.payload = append(req.payload, queryString...)
+	for i := 1; i <= int(quantity); i++ {
+		req.payload = append(req.payload, uint8(6))
+		req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, 1)...)
+		req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, startingRecord)...)
+		req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, RequestPayloadlength)...)
+		startingRecord--
+	}
+	log.Printf("registers count: %v", registersCount)
 	log.Printf("Request: %v", req)
 
 	res, err = mc.executeRequest(req)
