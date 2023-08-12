@@ -83,7 +83,6 @@ func (rt *rtuTransport) ExecuteRequest(req *pdu) (res *pdu, err error) {
 	if err != nil {
 		return
 	}
-	fmt.Printf("assembledRTUFrame: %v", n)
 	// estimate how long the serial line was busy for.
 	// note that on most platforms, Write() will be buffered and return
 	// immediately rather than block until the buffer is drained
@@ -94,7 +93,6 @@ func (rt *rtuTransport) ExecuteRequest(req *pdu) (res *pdu, err error) {
 
 	// read the response back from the wire
 	res, err = rt.readRTUFrame()
-	fmt.Printf("executeRequestError: %v", err)
 	if err == ErrBadCRC || err == ErrProtocolError || err == ErrShortFrame {
 		// wait for and flush any data coming off the link to allow
 		// devices to re-sync
@@ -145,7 +143,6 @@ func (rt *rtuTransport) readRTUFrame() (res *pdu, err error) {
 
 	// read the serial ADU header: unit id (1 byte), function code (1 byte) and
 	// PDU length/exception code (1 byte)
-	fmt.Printf("rxbuf: %v", rxbuf)
 	byteCount, err = io.ReadFull(rt.link, rxbuf[0:3])
 	if (byteCount > 0 || err == nil) && byteCount != 3 {
 		err = ErrShortFrame
@@ -154,7 +151,6 @@ func (rt *rtuTransport) readRTUFrame() (res *pdu, err error) {
 	if err != nil && err != io.ErrUnexpectedEOF {
 		return
 	}
-	fmt.Printf("beforeBytesNeeded")
 	// figure out how many further bytes to read
 	bytesNeeded, err = expectedResponseLenth(uint8(rxbuf[1]), uint8(rxbuf[2]))
 	if err != nil {
@@ -164,7 +160,6 @@ func (rt *rtuTransport) readRTUFrame() (res *pdu, err error) {
 	// we need to read 2 additional bytes of CRC after the payload
 	bytesNeeded += 2
 
-	fmt.Printf("bytesTotal: %v", byteCount+bytesNeeded)
 	// never read more than the max allowed frame length
 	if byteCount+bytesNeeded > maxRTUFrameLength {
 		err = ErrProtocolError
@@ -215,7 +210,6 @@ func (rt *rtuTransport) assembleRTUFrame(p *pdu) (adu []byte) {
 
 	// append the CRC to the ADU
 	adu = append(adu, crc.value()...)
-	log.Printf("ADU: %v", adu)
 	return
 }
 

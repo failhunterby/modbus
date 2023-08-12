@@ -940,9 +940,6 @@ func (mc *ModbusClient) readFileLines(recNumber uint16, quantity uint16) (bytes 
 	var req *pdu
 	var res *pdu
 
-	log.Printf("recNumber %s", recNumber)
-	log.Printf("quantity %s", quantity)
-
 	mc.lock.Lock()
 	defer mc.lock.Unlock()
 	if (recNumber - quantity) < 1 {
@@ -979,15 +976,12 @@ func (mc *ModbusClient) readFileLines(recNumber uint16, quantity uint16) (bytes 
 		req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, RequestPayloadlength)...)
 		recNumber--
 	}
-	log.Printf("registers count: %v", registersCount)
-	log.Printf("Request: %v", req)
 
 	res, err = mc.executeRequest(req)
 	if err != nil {
 		log.Printf("Error: %v", err)
 		return
 	}
-	log.Printf("res: %v", res)
 	switch {
 	case res.functionCode == req.functionCode:
 		// make sure the payload length is what we expect
