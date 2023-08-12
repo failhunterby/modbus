@@ -929,7 +929,7 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	}
 
 	// decode payload bytes as uint16s
-	values = bytesToUint16s(mc.endianness, mbPayload)
+	values = bytesToUint16s(BIG_ENDIAN, mbPayload)
 
 	return
 }
