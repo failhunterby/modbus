@@ -929,8 +929,11 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	}
 
 	// decode payload bytes as uint16s
-	values = bytesToUint16s(BIG_ENDIAN, mbPayload)
-
+	uints := make([]uint16, len(bytes))
+	for i, b := range mbPayload {
+		uints[i] = uint16(b)
+	}
+	values = uints
 	return
 }
 
