@@ -929,7 +929,7 @@ func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values
 	}
 
 	// decode payload bytes as uint16s
-	uints := make([]uint16, len(bytes))
+	uints := make([]uint16, len(mbPayload))
 	for i, b := range mbPayload {
 		uints[i] = uint16(b)
 	}
