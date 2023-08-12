@@ -1008,6 +1008,9 @@ func (mc *ModbusClient) readFileLines(recNumber uint16, quantity uint16) (bytes 
 		for i := 0; i < len(bytes); i += 33 {
 			bytes = append(bytes[:i], bytes[i+1:]...)
 		}
+		for i := 0; i < len(bytes); i += 32 {
+			bytes = append(bytes[:i], bytes[i+1:]...)
+		}
 		fmt.Printf("response: %v", bytes)
 		return
 	/* case res.functionCode == (req.functionCode | 0x80):
