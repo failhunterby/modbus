@@ -965,12 +965,8 @@ func (mc *ModbusClient) readFileLines(recNumber uint16, quantity uint16) (bytes 
 		unitId: mc.unitId,
 	}
 	req.functionCode = 20
-	startingRecord := uint16(5)
 	var registersCount uint8
 	registersCount = 0
-	log.Printf("startingRecord: %v", startingRecord)
-	log.Printf("startingRecord: %v", uint16ToBytes(BIG_ENDIAN, startingRecord))
-	log.Printf("startingRecordLittleEndian: %v", uint16ToBytes(LITTLE_ENDIAN, startingRecord))
 	for i := 1; i <= int(quantity); i++ {
 		registersCount = registersCount + 7
 	}
@@ -979,9 +975,9 @@ func (mc *ModbusClient) readFileLines(recNumber uint16, quantity uint16) (bytes 
 	for i := 1; i <= int(quantity); i++ {
 		req.payload = append(req.payload, uint8(6))
 		req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, 1)...)
-		req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, startingRecord)...)
+		req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, recNumber)...)
 		req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, RequestPayloadlength)...)
-		startingRecord--
+		recNumber--
 	}
 	log.Printf("registers count: %v", registersCount)
 	log.Printf("Request: %v", req)
