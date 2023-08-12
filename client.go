@@ -1012,13 +1012,13 @@ func (mc *ModbusClient) readFileLines(recNumber uint16, quantity uint16) (bytes 
 			bytes = append(bytes[:i], bytes[i+1:]...)
 		}
 		fmt.Printf("response: %v", bytes)
-	case res.functionCode == (req.functionCode | 0x80):
-		if len(res.payload) != 1 {
-			err = ErrProtocolError
-			return
-		}
+	/* case res.functionCode == (req.functionCode | 0x80):
+	if len(res.payload) != 1 {
+		err = ErrProtocolError
+		return
+	}
 
-		err = mapExceptionCodeToError(res.payload[0])
+	err = mapExceptionCodeToError(res.payload[0]) */
 
 	default:
 		err = ErrProtocolError
