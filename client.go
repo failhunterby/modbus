@@ -926,7 +926,7 @@ func (mc *ModbusClient) readFileLines(addr uint16, recNumber uint16, quantity ui
 	var res		*pdu
 	mc.lock.Lock()
 	defer mc.lock.Unlock()
-	if (recNumber - quantity) < 1 {
+	if (recNumber - quantity) < 0 {
 		err	= ErrUnexpectedParameters
 		mc.logger.Error("quantity more then records")
 		return
