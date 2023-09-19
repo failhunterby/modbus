@@ -919,58 +919,117 @@ func (mc *ModbusClient) writeBytes(addr uint16, values []byte, observeEndianness
 }
 
 
-func (mc *ModbusClient) ReadFileLines(addr uint16, recNumber uint16, quantity uint16)(values []uint16, err error) {
-	
-	const RequestPayloadlength uint16 = 7
-	var req		*pdu
-	var res		*pdu
+func (mc *ModbusClient) ReadFileLines(recNumber uint16, quantity uint16) (values []uint16, err error) {
+	var mbPayload []byte
+
+	// read quantity uint16 registers, as bytes
+	mbPayload, err = mc.readFileLines(recNumber, quantity)
+	if err != nil {
+		return
+	}
+
+	// decode payload bytes as uint16s
+	/* uints := make([]uint16, len(mbPayload))
+	for i, b := range mbPayload {
+		uints[i] = uint16(b)
+	}
+	values = uints */
+	values = bytesToUint16s(mc.endianness, mbPayload)
+	return
+}
+
+func (mc *ModbusClient) readFileLines(recNumber uint16, quantity uint16) (bytes []byte, err error) {
+
+	const RequestPayloadlength uint16 = 16
+	var req *pdu
+	var res *pdu
+
 	mc.lock.Lock()
 	defer mc.lock.Unlock()
-	if (recNumber - quantity) < 0 {
-		err	= ErrUnexpectedParameters
+	if (recNumber - quantity) < 1 {
+		err = ErrUnexpectedParameters
 		mc.logger.Error("quantity more then records")
 		return
 	}
 	if quantity == 0 {
-		err	= ErrUnexpectedParameters
+		err = ErrUnexpectedParameters
 		mc.logger.Error("quantity of file records to read inputs is 0")
 		return
 	}
 	if quantity > 4 {
-		err	= ErrUnexpectedParameters
+		err = ErrUnexpectedParameters
 		mc.logger.Error("quantity of coils/discrete inputs exceeds 4")
 		return
 	}
 
-	req	= &pdu{
-		unitId:	mc.unitId,
+	req = &pdu{
+		unitId: mc.unitId,
 	}
-	req.functionCode = fcReadFileRecord
-	// start address
-	req.payload	= uint16ToBytes(BIG_ENDIAN, addr)
-	// quantity
-	req.payload	= append(req.payload, uint16ToBytes(BIG_ENDIAN, quantity * RequestPayloadlength)...)
-	startingRecord := recNumber
-	var registersCount uint16
-	registersCount = 0;
-	var queryString []byte
+	req.functionCode = 20
+	var registersCount uint8
+	registersCount = 0
+	for i := 1; i <= int(quantity); i++ {
+		registersCount = registersCount + 7
+	}
+	req.payload = make([]byte, 0)
+	req.payload = append(req.payload, registersCount)
+	for i := 1; i <= int(quantity); i++ {
+		req.payload = append(req.payload, uint8(6))
+		req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, 1)...)
+		req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, recNumber)...)
+		req.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, RequestPayloadlength)...)
+		recNumber--
+	}
 
-	for i:=1; i<= int(quantity); i++ {
-		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, 6)...)
-		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, 1)...)
-		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, startingRecord)...)
-		queryString = append(queryString, uint16ToBytes(BIG_ENDIAN, RequestPayloadlength)...)
-		startingRecord--
-		registersCount += 7
-	}
-	res.payload = append(req.payload, uint16ToBytes(BIG_ENDIAN, registersCount)...)
-	res.payload = append(res.payload, queryString...)
-	res, err	= mc.executeRequest(req)
+	res, err = mc.executeRequest(req)
 	if err != nil {
+		log.Printf("Error: %v", err)
 		return
 	}
+	switch {
+	case res.functionCode == req.functionCode:
+		// make sure the payload length is what we expect
+		// (1 byte of length + 2 bytes per register)
+		if len(res.payload) != 3+33*int(quantity) {
+			fmt.Printf("firstCheck: %v", len(res.payload))
+			err = ErrProtocolError
+			return
+		}
+
+		// validate the byte count field
+		// (2 bytes per register * number of registers)
+		if uint(res.payload[0]) != 2+33*uint(quantity) {
+			fmt.Printf("secondCheck")
+			err = ErrProtocolError
+			return
+		}
+
+		// remove the byte count field from the returned slice
+		bytes = res.payload[1:]
+		for i := 0; i < len(bytes); i += 33 {
+			bytes = append(bytes[:i], bytes[i+1:]...)
+		}
+		for i := 0; i < len(bytes); i += 32 {
+			bytes = append(bytes[:i], bytes[i+1:]...)
+		}
+		fmt.Printf("response: %v", bytes)
+		return
+	/* case res.functionCode == (req.functionCode | 0x80):
+	if len(res.payload) != 1 {
+		err = ErrProtocolError
+		return
+	}
+
+	err = mapExceptionCodeToError(res.payload[0]) */
+
+	default:
+		err = ErrProtocolError
+		mc.logger.Warningf("unexpected response code (%v)", res.functionCode)
+	}
+
 	return
 }
+
 
 // Reads and returns quantity booleans.
 // Digital inputs are read if di is true, otherwise coils are read.
